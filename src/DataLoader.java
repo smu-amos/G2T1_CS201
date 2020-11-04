@@ -12,7 +12,7 @@ public class DataLoader {
     public static FlightInfoList adjacencyMatrix[][];
 
     public static void main (String[] args) {
-        File file = new File("/Users/amoslgl96/Documents/SMU-Y4S1/CS201-DATASTRUCTURE/Project/CS201_PROJECT/data/overall_data.csv");
+        File file = new File("C:\\Users\\Gan Rui Le\\Data_Efficiency\\G2T1_CS201\\src\\overall_data.csv");
         BufferedReader br = null;
         BufferedReader br2 = null;
         String line = "";
@@ -86,7 +86,7 @@ public class DataLoader {
                     int pitstopIndex = cityToIndex.get(results[2]);
                     int destIndex = cityToIndex.get(results[3]);
                     FlightInfo flightInfo1 = new FlightInfo(Integer.parseInt(results[4]), true, results[2], results[1], Integer.parseInt(results[0]));
-                    FlightInfo flightInfo2 = new FlightInfo(Integer.parseInt(results[4]), false, results[3], results[1], 0);
+                    FlightInfo flightInfo2 = new FlightInfo(Integer.parseInt(results[4]), false, results[3], results[1], Integer.parseInt(results[0]));
 
                     if (matrixGraph.getMatrix()[sourceIndex][pitstopIndex] == null) {
                         matrixGraph.setInit(sourceIndex, pitstopIndex);
@@ -107,8 +107,8 @@ public class DataLoader {
 
                     //create FlightInfo objects
                     FlightInfo flightInfo1 = new FlightInfo(Integer.parseInt(results[5]), true, results[2], results[1], Integer.parseInt(results[0]));
-                    FlightInfo flightInfo2 = new FlightInfo(Integer.parseInt(results[5]), false, results[3], results[1], 0);
-                    FlightInfo flightInfo3 = new FlightInfo(Integer.parseInt(results[5]), false, results[4], results[1], 0);
+                    FlightInfo flightInfo2 = new FlightInfo(Integer.parseInt(results[5]), false, results[3], results[1], Integer.parseInt(results[0]));
+                    FlightInfo flightInfo3 = new FlightInfo(Integer.parseInt(results[5]), false, results[4], results[1], Integer.parseInt(results[0]));
 
                     if (matrixGraph.getMatrix()[sourceIndex][pitstopIndex1] == null) {
                         matrixGraph.setInit(sourceIndex, pitstopIndex1);
@@ -150,10 +150,20 @@ public class DataLoader {
         //     }
         // }
 
+        String result;
+
         //Run greedy algo
         System.out.println("Greedy:");
         Greedy1 greedy1 = new Greedy1();
-        String result = greedy1.executeAlgo("AMS", "ORD", cityToIndex, matrixGraph.getMatrix());
+        result = greedy1.executeAlgo("AMS", "PVG", cityToIndex, matrixGraph.getMatrix());
+        System.out.println(result);
+
+        System.out.println();
+
+        //Run greedy backtrack algo
+        System.out.println("Greedy with Backtrack:");
+        Greedy1Backtrack greedy1Backtrack = new Greedy1Backtrack();
+        result = greedy1Backtrack.executeAlgo("AMS", "PVG", cityToIndex, matrixGraph.getMatrix());
         System.out.println(result);
 
         System.out.println();
@@ -161,7 +171,7 @@ public class DataLoader {
         //Run Dijkstra algo
         System.out.println("Dijkstra:");
         Dijkstra dijkstra = new Dijkstra();
-        result = dijkstra.executeAlgo("HKG", "MUC", cityToIndex, matrixGraph.getMatrix());
+        result = dijkstra.executeAlgo("AMS", "PVG", cityToIndex, matrixGraph.getMatrix());
         System.out.println(result);
 
         // DIJKSTRA OUTPUT: HKG-FRA-MAD-MUC ( 735 )
