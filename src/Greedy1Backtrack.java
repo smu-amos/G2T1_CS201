@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Greedy1Backtrack implements GraphAlgo {
 
-    public String executeAlgo(String source, String dest, HashMap<String,Integer> cityToIndex, FlightInfoList graph[][]) {
+    public String executeAlgo(String source, String dest, Map<String,Integer> cityToIndex, Map<Integer, List<String>> flightIDToListOfStops, FlightInfoList graph[][]) {
         //get the indices of the matrix that correspond to the city
         int sourceIndex = cityToIndex.get(source);
         int destIndex = cityToIndex.get(dest);

@@ -2,8 +2,8 @@ import java.util.*;
 
 public interface GraphAlgo {
 
-    public HashMap<Integer, Integer> recordMap = new HashMap<Integer, Integer>();
-    public String executeAlgo(String source, String dest, HashMap<String,Integer> cityToIndex, FlightInfoList graph[][]);
+    public Map<Integer, Integer> recordMap = new HashMap<Integer, Integer>();
+    public String executeAlgo(String source, String dest, Map<String,Integer> cityToIndex, Map<Integer, List<String>> flightIDToListOfStops, FlightInfoList graph[][]);
     /*
     {
         Row_id: 1,

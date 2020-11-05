@@ -22,14 +22,13 @@ For BC and CD, we need to store a boolean that it is part of a pitstop
 flight (eg. isOrigin) so cannot start from here (or can just skip here)
 
 
-
 **REPORT**
     - Dataset
     - Algorithm
     - Experimentation
     - Analyses
 
-    1. Restate problem
+    1. Restate problem ( jiongyu )
         - We can describe it as " wait for covid to end , anticipate our solutuon to be useful "
     2. Describe gist of algo implemented and key analyses
         - analyzing the correctness and efficiency properties of those algorithms
@@ -48,7 +47,7 @@ flight (eg. isOrigin) so cannot start from here (or can just skip here)
             - you may test it on dataset of different sizes to study how scalable the algorithm is (in time and in space),
             - you may try to understand when one algo does better than another algo,
             - or how one algo behaves on different datasets.
-    5. X-factor
+    5. X-factor ( jiongyu )
         1. Applicability
         2. What makes project special
             - Interestingness of the problem

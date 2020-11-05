@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Greedy1 implements GraphAlgo {
 
-    public String executeAlgo(String source, String dest, HashMap<String,Integer> cityToIndex, FlightInfoList graph[][]) {
+    public String executeAlgo(String source, String dest, Map<String,Integer> cityToIndex, Map<Integer, List<String>> flightIDToListOfStops, FlightInfoList graph[][]) {
         HashMap<Integer, Integer> recordMap = new HashMap<Integer, Integer>(); // store the id of all the flightinfo with pitstops 
         HashMap<String, Integer> citiesVisited = new HashMap<>();
         int sourceIndex = cityToIndex.get(source);
