@@ -124,6 +124,8 @@ public class Dijkstra implements GraphAlgo {
         
         /** get the source city's idx representation in the adjacency matrix (graph) */
         int sourceCityIdx = cityToIndex.get(source);
+        /** get the destination city's idx representation in the adjacency matrix (graph) */
+        int destCityIdx = cityToIndex.get(dest);
 
         /**
          * minCostFromSrcToCity is an important implementation used by dijkstra to keep track of the cost computed to reach a city X from source city. 
@@ -239,14 +241,14 @@ public class Dijkstra implements GraphAlgo {
             return String.format("Flight from %s to %s is not supported", source, dest);
         }
 
-        return stringifyOptimalPath(flightIDToListOfStops, flightsTakenToReachDestination, source);
+        return stringifyOptimalPath(flightIDToListOfStops, flightsTakenToReachDestination, source, minCostFromSrcToCity[destCityIdx]);
     }
 
     /**
      * This function maps flights id to its full flight path ( for pitstops that includes all the cities in between )
      * With that information, instructions are printed out for users on how to proceed with the shortest path
      */
-    public String stringifyOptimalPath(Map<Integer, List<String>> flightIDToListOfStops, Stack<FlightTaken> flightsTakenToReachDestination, String source) {
+    public String stringifyOptimalPath(Map<Integer, List<String>> flightIDToListOfStops, Stack<FlightTaken> flightsTakenToReachDestination, String source, int costOfPath) {
         StringBuilder optimalPathSB = new StringBuilder(String.format("Starting airport: %s.\n", source));
         int step = 1;
 
@@ -276,6 +278,8 @@ public class Dijkstra implements GraphAlgo {
             
             step++;
         }
+
+        optimalPathSB.append(String.format("Total cost that will be incurred: $%d\n", costOfPath));
 
         return optimalPathSB.toString();
 
