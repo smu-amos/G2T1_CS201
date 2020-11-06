@@ -90,7 +90,7 @@ public class DataLoader {
                     int pitstopIndex = cityToIndex.get(results[2]);
                     int destIndex = cityToIndex.get(results[3]);
                     FlightInfo flightInfo1 = new FlightInfo(Integer.parseInt(results[4]), true, results[2], results[1], Integer.parseInt(results[0]));
-                    FlightInfo flightInfo2 = new FlightInfo(Integer.parseInt(results[4]), false, results[3], results[1], Integer.parseInt(results[0]));
+                    FlightInfo flightInfo2 = new FlightInfo(0, false, results[3], results[2], Integer.parseInt(results[0]));
 
                     // store the list of stops to its flightID
                     flightIDToListOfStops.put(flightInfo1.getId(), new ArrayList<String>(Arrays.asList(results[2],results[3])));
@@ -114,8 +114,8 @@ public class DataLoader {
 
                     //create FlightInfo objects
                     FlightInfo flightInfo1 = new FlightInfo(Integer.parseInt(results[5]), true, results[2], results[1], Integer.parseInt(results[0]));
-                    FlightInfo flightInfo2 = new FlightInfo(Integer.parseInt(results[5]), false, results[3], results[1], Integer.parseInt(results[0]));
-                    FlightInfo flightInfo3 = new FlightInfo(Integer.parseInt(results[5]), false, results[4], results[1], Integer.parseInt(results[0]));
+                    FlightInfo flightInfo2 = new FlightInfo(0, false, results[3], results[2], Integer.parseInt(results[0]));
+                    FlightInfo flightInfo3 = new FlightInfo(0, false, results[4], results[3], Integer.parseInt(results[0]));
 
                     flightIDToListOfStops.put(flightInfo1.getId(), new ArrayList<String>(Arrays.asList(results[2],results[3], results[4])));
 
@@ -202,5 +202,13 @@ public class DataLoader {
         // 1) First move: HKG -> FRA -> AMS ( pitstop flight ) ( skip flight - get off from FRA )
         // 2) Second move: FRA -> MAD ( take direct flight )
         // 3) Third move: MAD -> MUC ( take direct flight )
+
+
+
+    //     Starting airport: HKG.
+    //     1) Purchase flight with pitstops (ZRH-GVA-LHR)
+    //     Take flight to ZRH (skip flight)
+    //     2) Take direct flight to MAD.
+    //     3) Take direct flight to MUC.
     }
 }
