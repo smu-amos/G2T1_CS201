@@ -57,13 +57,20 @@ public class BFSFirstPath implements GraphAlgo {
         while (!calculatedTravels.isEmpty()) {
 
             /** dequeue from head of queue and get travel cost information on city travelled to from source  */
-            TravelCost currentCityToReachFromSource = calculatedTravels.remove();            
+            TravelCost currentCityToReachFromSource = calculatedTravels.remove();     
+
             /** get the city in travel cost */
             String currentCityToReach = currentCityToReachFromSource.getCity();
             /** get the cost of travelling to the city from source */
             int flightCostToCurrentCity = currentCityToReachFromSource.getCost();
 
-            int cityIndex = cityToIndex.get(currentCityToReach); 
+            int cityIndex = cityToIndex.get(currentCityToReach);
+
+            /** Compare travel cost with the min cost calculated to reach current city, this may happen due to a more recently computed travel cost going to the same destination was computed and enqueued into the priority queue  */
+            if (minCostFromSrcToCity[cityIndex] < flightCostToCurrentCity) {
+                continue;
+            }
+
             FlightInfoList outgoingFlights[] = graph[cityIndex];
 
             /** get the previous flight taken to reach the current city  */ 
@@ -108,6 +115,8 @@ public class BFSFirstPath implements GraphAlgo {
                         
                         calculatedTravels.add(new TravelCost(nextFlightDestination, costToNextCity));
                         
+                        // @TODO: problem with this is, the previous flight info is for this travel cost, not for other travel cost going towards same destination
+                        // when dequeue compare travel cost with minCostFromSrcToCity[nextCityIdx], if is higher, then ignore
                         flightTakenToReachCity.put(nextFlightDestination, fi);
 
                         /** stop BFS algo by breaking out of while loop */

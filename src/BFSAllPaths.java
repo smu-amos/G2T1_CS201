@@ -59,6 +59,12 @@ public class BFSAllPaths implements GraphAlgo {
             int flightCostToCurrentCity = currentCityToReachFromSource.getCost();
 
             int cityIndex = cityToIndex.get(currentCityToReach); 
+
+            /** Compare travel cost with the min cost calculated to reach current city, this may happen due to a more recently computed travel cost going to the same destination was computed and enqueued into the priority queue  */
+            if (minCostFromSrcToCity[cityIndex] < flightCostToCurrentCity) {
+                continue;
+            }
+            
             FlightInfoList outgoingFlights[] = graph[cityIndex];
 
             /** get the previous flight taken to reach the current city  */ 
