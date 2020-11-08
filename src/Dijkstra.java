@@ -43,54 +43,6 @@ import java.util.*;
  */
 public class Dijkstra implements GraphAlgo {
 
-    /**
-     * TravelCost looks at accumulated travel cost to reach a particular city (node) from the source city
-     * This object is retrieved from the priority queue by the dijkstra algorithm to decide which is the cheapest city x to reach from source and calculate x's flightinfo paths
-     */
-    private class TravelCost {
-        private String city;
-        private int cost;
-        
-        public TravelCost(String city, int cost) {
-          this.city = city;
-          this.cost = cost;
-        }
-        
-        /** Returns the accumulated computed cost by dijkstra to reach city from source city specified by user */
-        public int getCost() { return this.cost; }
-
-        public String getCity() { return this.city; }
-    }
-
-    /**
-     * An implementation made to trace the optimal path calculated by dijkstra ( so this is not directly related to the algorithm in computing shortest path )
-     *
-     * Useful for tracking count of flightInfo traversed with the same flightID. By having this count, we can know how many pitstops user has traversed in a particular flight ticket route
-     */
-    private class FlightTaken {
-        private int flightID;
-        private int count;
-        
-        public FlightTaken(int flightID, int count) {
-          this.flightID = flightID;
-          this.count = count;
-        }
-        
-        /** set count for number of cities visited by user in a particular flight ticket */
-        public void setCount(int count) {
-            this.count = count;
-        }
-
-        public int getCount() { 
-            return this.count; 
-        }
-
-        public int getFlightID() { 
-            return this.flightID; 
-        }
-    
-    }
-
      /**
      * Returns a string representation of the instructions we give to our user on what are the flight paths to take. 
      * This is inclusive of direct flights, pitstop flights as well as taking skipped flights
@@ -223,16 +175,26 @@ public class Dijkstra implements GraphAlgo {
 
         while (incomingFlight != null) {
 
-            if (!flightsTakenToReachDestination.empty() &&
-                flightsTakenToReachDestination.peek().getFlightID() == incomingFlight.getId()
-            ) {
-                FlightTaken flightAhead = flightsTakenToReachDestination.peek();
-                flightAhead.setCount(flightAhead.getCount()+1);
+            incomingFlightOriginCity = incomingFlight.getCurrCity();
+
+            // check if incomingFlight is a non-first leg pitstop flight. if it is, path = from first city of pitstop flight to this incoming flight
+            // this means i need to include source city in the flightIDToListOfStops as well
+            if (incomingFlight.getIsOrigin() == false) {
+                
+                List<String> pitstopsOnFlight = flightIDToListOfStops.get(incomingFlight.getId());
+                // search the list, for the incomingFlightNextCCity
+                String nextCity = incomingFlight.getNextCity();
+                int idxOfCity = pitstopsOnFlight.indexOf(nextCity);
+
+                flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), idxOfCity));
+                incomingFlightOriginCity = pitstopsOnFlight.get(0);
             } else {
                 flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), 1));
             }
             
-            incomingFlightOriginCity = incomingFlight.getCurrCity();
+            
+            // System.out.println("flight info:");
+            // System.out.println(incomingFlight);
             incomingFlight = flightTakenToReachCity.get(incomingFlightOriginCity);
         }
 
@@ -257,22 +219,24 @@ public class Dijkstra implements GraphAlgo {
             // map flightID to list of stops that exist in the flightID
             // @TODO give better naming
             FlightTaken fo = flightsTakenToReachDestination.pop();
-            List<String> citiesReachable = flightIDToListOfStops.get(fo.getFlightID());
-            int numberOfCitiesReachable = citiesReachable.size();
-            int numberOfCitiesTravelled = fo.getCount();
+            // List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(fo.getFlightID());
 
-            if (numberOfCitiesReachable == 1) {
+            List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(fo.getFlightID());
+            int numberOfCitiesReachableFromFlightSource = citiesInvolvedInFlight.size() - 1;
+            int numberOfCitiesTravelledFromFlightSource = fo.getCount();
+
+            if (numberOfCitiesReachableFromFlightSource == 1) {
                 // direct flight
-                String instruction = String.format("%d) Take direct flight to %s.\n", step, citiesReachable.get(numberOfCitiesReachable-1));
+                String instruction = String.format("%d) Take direct flight to %s.\n", step, citiesInvolvedInFlight.get(numberOfCitiesReachableFromFlightSource));
                 optimalPathSB.append(instruction);
-            } else if (numberOfCitiesTravelled < numberOfCitiesReachable) {
-                String purchase = String.format("Purchase flight with pitstops (%s)", citiesToTravel(citiesReachable, numberOfCitiesReachable));
-                String take = String.format("Take flight to %s (skip flight)", citiesToTravel(citiesReachable, numberOfCitiesTravelled));
+            } else if (numberOfCitiesTravelledFromFlightSource < numberOfCitiesReachableFromFlightSource) {
+                String purchase = String.format("Purchase flight with pitstops (%s)", citiesToTravel(citiesInvolvedInFlight, numberOfCitiesReachableFromFlightSource + 1));
+                String take = String.format("Take flight to %s (skip flight)", citiesToTravel(citiesInvolvedInFlight, numberOfCitiesTravelledFromFlightSource + 1));
                 String finalString = String.format("%d) %s\n%s\n", step, purchase, take);
                 optimalPathSB.append(finalString);
             } else {
                 // take full pitstop flights
-                String finalString = String.format("%d) Purchase and take flight with pitstops %s\n", step, citiesToTravel(citiesReachable, numberOfCitiesReachable));
+                String finalString = String.format("%d) Purchase and take flight with pitstops %s\n", step, citiesToTravel(citiesInvolvedInFlight, numberOfCitiesReachableFromFlightSource + 1));
                 optimalPathSB.append(finalString);
             }
             

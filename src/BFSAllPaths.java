@@ -128,17 +128,6 @@ public class BFSAllPaths implements GraphAlgo {
 
         while (incomingFlight != null) {
 
-            // if incomingFlight is pitstop flight, 
-
-            // if (!flightsTakenToReachDestination.empty() &&
-            //     flightsTakenToReachDestination.peek().getFlightID() == incomingFlight.getId()
-            // ) {
-            //     FlightTaken flightAhead = flightsTakenToReachDestination.peek();
-            //     flightAhead.setCount(flightAhead.getCount()+1);
-            // } else {
-            //     flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), 1));
-            // }
-
             incomingFlightOriginCity = incomingFlight.getCurrCity();
 
             // check if incomingFlight is a non-first leg pitstop flight. if it is, path = from first city of pitstop flight to this incoming flight
@@ -150,7 +139,6 @@ public class BFSAllPaths implements GraphAlgo {
                 String nextCity = incomingFlight.getNextCity();
                 int idxOfCity = pitstopsOnFlight.indexOf(nextCity);
 
-                // @TODO idx of city might need to change
                 flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), idxOfCity));
                 incomingFlightOriginCity = pitstopsOnFlight.get(0);
             } else {
@@ -158,8 +146,8 @@ public class BFSAllPaths implements GraphAlgo {
             }
             
             
-            System.out.println("flight info:");
-            System.out.println(incomingFlight);
+            // System.out.println("flight info:");
+            // System.out.println(incomingFlight);
             incomingFlight = flightTakenToReachCity.get(incomingFlightOriginCity);
         }
 
@@ -173,18 +161,6 @@ public class BFSAllPaths implements GraphAlgo {
 
         return stringifyOptimalPath(flightIDToListOfStops, flightsTakenToReachDestination, source, minCostFromSrcToCity[destCityIdx]);
     }
-
-    // public void printStack(Stack<FlightTaken> s, ) {
-    //     // Creating an iterator 
-    //     Iterator value = s.iterator(); 
-  
-    //     // Displaying the values 
-    //     // after iterating through the stack 
-    //     System.out.println("The iterator values are: "); 
-    //     while (value.hasNext()) { 
-    //         System.out.println(value.next()); 
-    //     } 
-    // }
 
     /**
      * This function maps flights id to its full flight path ( for pitstops that includes all the cities in between )

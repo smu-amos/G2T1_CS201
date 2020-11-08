@@ -79,7 +79,7 @@ public class DataLoader {
                     FlightInfo flightInfo = new FlightInfo(Integer.parseInt(results[3]), true, results[2], results[1], Integer.parseInt(results[0]));
 
                     // store the list of stops to its flightID
-                    flightIDToListOfStops.put(flightInfo.getId(), new ArrayList<String>(Arrays.asList(results[2])));
+                    flightIDToListOfStops.put(flightInfo.getId(), new ArrayList<String>(Arrays.asList(results[1],results[2])));
 
                     if (matrixGraph.getMatrix()[sourceIndex][destIndex] == null) {
                         matrixGraph.setInit(sourceIndex, destIndex);
@@ -93,7 +93,7 @@ public class DataLoader {
                     FlightInfo flightInfo2 = new FlightInfo(0, false, results[3], results[2], Integer.parseInt(results[0]));
 
                     // store the list of stops to its flightID
-                    flightIDToListOfStops.put(flightInfo1.getId(), new ArrayList<String>(Arrays.asList(results[2],results[3])));
+                    flightIDToListOfStops.put(flightInfo1.getId(), new ArrayList<String>(Arrays.asList(results[1],results[2],results[3])));
 
                     if (matrixGraph.getMatrix()[sourceIndex][pitstopIndex] == null) {
                         matrixGraph.setInit(sourceIndex, pitstopIndex);
@@ -117,7 +117,7 @@ public class DataLoader {
                     FlightInfo flightInfo2 = new FlightInfo(0, false, results[3], results[2], Integer.parseInt(results[0]));
                     FlightInfo flightInfo3 = new FlightInfo(0, false, results[4], results[3], Integer.parseInt(results[0]));
 
-                    flightIDToListOfStops.put(flightInfo1.getId(), new ArrayList<String>(Arrays.asList(results[2],results[3], results[4])));
+                    flightIDToListOfStops.put(flightInfo1.getId(), new ArrayList<String>(Arrays.asList(results[1],results[2],results[3], results[4])));
 
                     if (matrixGraph.getMatrix()[sourceIndex][pitstopIndex1] == null) {
                         matrixGraph.setInit(sourceIndex, pitstopIndex1);
@@ -161,54 +161,63 @@ public class DataLoader {
 
         String result;
 
-        //Run greedy algo
-        System.out.println("Greedy:");
-        Greedy1 greedy1 = new Greedy1();
-        result = greedy1.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        System.out.println(result);
+        // //Run greedy algo
+        // System.out.println("Greedy:");
+        // Greedy1 greedy1 = new Greedy1();
+        // result = greedy1.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+        // System.out.println(result);
 
-        System.out.println();
+        // System.out.println();
 
-        //Run greedy backtrack algo
-        System.out.println("Greedy with Backtrack:");
-        Greedy1Backtrack greedy1Backtrack = new Greedy1Backtrack();
-        result = greedy1Backtrack.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        System.out.println(result);
+        // //Run greedy backtrack algo
+        // System.out.println("Greedy with Backtrack:");
+        // Greedy1Backtrack greedy1Backtrack = new Greedy1Backtrack();
+        // result = greedy1Backtrack.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+        // System.out.println(result);
 
-        System.out.println();
+        // System.out.println();
 
-        //Run Dijkstra algo
         System.out.println("Dijkstra:");
+        long startTime = System.currentTimeMillis();
         Dijkstra dijkstra = new Dijkstra();
-        result = dijkstra.executeAlgo("HKG", "MUC", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+        result = dijkstra.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+        long estimatedTime = System.currentTimeMillis() - startTime;
         System.out.println(result);
 
-        // DIJKSTRA OUTPUT: HKG-FRA-MAD-MUC ( 735 )
+        System.out.println(startTime);
+        System.out.println(estimatedTime);
+        System.out.println();        
 
-        // All possible paths from HKG to MUC according to overall_data.csv 
+        //Run BFSAllPaths algo
+        System.out.println("BFSAllPaths:");
+        startTime = System.currentTimeMillis();
+        BFSAllPaths bfsAllPaths = new BFSAllPaths();
+        result = bfsAllPaths.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+        estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println(result);
 
-        // HKG - ZRH - GVA - MUC ( 983 )
-        // HKG - BKK - AMS - MUC ( 956 )
+        System.out.println("BFSAllPaths:");
+        
+        System.out.println(startTime);
+        System.out.println(estimatedTime);
 
-        // HKG	FRA	AMS	562
-        // HKG	FRA	IST	784
-        // FRA	MAD	LHR	DEL	2974
-        // FRA	MAD	CDG	503
-        // FRA	MAD	MEX	6297
-        // FRA	MAD	106
-        // MAD	MUC	67
+        System.out.println();
 
-        // DIJKSTRA solution gave 
-        // 1) First move: HKG -> FRA -> AMS ( pitstop flight ) ( skip flight - get off from FRA )
-        // 2) Second move: FRA -> MAD ( take direct flight )
-        // 3) Third move: MAD -> MUC ( take direct flight )
+        //Run BFSFirstPath algo
+        System.out.println("BFSFirstPath start:");
+
+        startTime = System.currentTimeMillis();
+        BFSFirstPath bfsFirstPath = new BFSFirstPath();
+        result = bfsFirstPath.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+        estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println(result);
+
+        System.out.println("BFSFirstPath end:");
+        
+        System.out.println(startTime);
+        System.out.println(estimatedTime);
 
 
-
-    //     Starting airport: HKG.
-    //     1) Purchase flight with pitstops (ZRH-GVA-LHR)
-    //     Take flight to ZRH (skip flight)
-    //     2) Take direct flight to MAD.
-    //     3) Take direct flight to MUC.
+    
     }
 }

@@ -148,7 +148,6 @@ public class BFSFirstPath implements GraphAlgo {
                 String nextCity = incomingFlight.getNextCity();
                 int idxOfCity = pitstopsOnFlight.indexOf(nextCity);
 
-                // @TODO idx of city might need to change
                 flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), idxOfCity));
                 incomingFlightOriginCity = pitstopsOnFlight.get(0);
             } else {
@@ -156,8 +155,8 @@ public class BFSFirstPath implements GraphAlgo {
             }
             
             
-            System.out.println("flight info:");
-            System.out.println(incomingFlight);
+            // System.out.println("flight info:");
+            // System.out.println(incomingFlight);
             incomingFlight = flightTakenToReachCity.get(incomingFlightOriginCity);
         }
 

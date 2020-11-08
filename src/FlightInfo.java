@@ -24,7 +24,7 @@ public class FlightInfo {
     
     @Override
     public String toString() {
-        return "(" + price + "," + isOrigin + "," + traversed + ", " + nextCity + ", id=" + id + ")";
+        return "( price:" + price + ", isOrigin:" + isOrigin + ", isTraversed:" + traversed + ", " +  "current city:" + currCity + ", next city:" + nextCity + ", id=" + id + ")";
         // return ("test");
     }
 
