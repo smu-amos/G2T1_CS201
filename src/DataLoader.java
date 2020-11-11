@@ -11,7 +11,7 @@ public class DataLoader {
     public static FlightInfoList adjacencyMatrix[][];
 
     public static void main (String[] args) {        
-        File file = new File("");
+        File file = new File("/Users/amoslgl96/Documents/SMU-Y4S1/CS201-DATASTRUCTURE/Project/CS201_PROJECT/data/overall_data.csv");
         BufferedReader br = null;
         BufferedReader br2 = null;
         String line = "";

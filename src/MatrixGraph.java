@@ -40,28 +40,4 @@ public class MatrixGraph {
         adjacencyMatrix[i][j].remove(flightInfo);
     }
 
-    // Print an edge - the list of FlightInfo objects in each cell
-    // public void printEdge(int i, int j) {
-    //     for (FlightInfo temp : adjacencyMatrix[i][j]) {
-    //         System.out.println(temp);
-    //     }
-    // }
-    
-
-    // public static void main(String args[]) {
-    //     MatrixGraph g = new MatrixGraph(4);
-
-    //     // g.addEdge(0, 1);
-    //     // g.addEdge(0, 2);
-    //     // g.addEdge(1, 2);
-    //     // g.addEdge(2, 0);
-    //     // g.addEdge(2, 3);
-
-    //     System.out.print(g.toString());
-
-    //     ArrayList<String> a = new ArrayList<>();
-    //     a.add("hi");
-    //     a.set(0, null);
-    // }
-
 }

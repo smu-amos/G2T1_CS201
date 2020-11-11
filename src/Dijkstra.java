@@ -1,37 +1,3 @@
-
-
-/*
-An implied condition to apply the Dijkstra's algorithm is that the weights of the graph must be positive. If the graph has negative weights and can have negative weighted cycles, we would have to employ another algorithm called the Bellman Ford's. The point here is that the properties of the graph and the goal define the kind of algorithms we might be able to use.
-
-this problem becomes a standard shortest paths problem in a weighted graph with positive weights and hence, it becomes a prime candidate for Dijkstra's. As we all know, Dijkstra's uses a min-heap (priority queue) as the main data structure for always picking out the node which can be reached in the shortest amount of time/cost/weight from the current point starting all the way from the source. 
-
-FlightInfo is our "edge", for each vertex, it has more than 1 edges to another vertex ( pitstop, direct flight etc ) ( represented via list of flightinfo )
-The index of the adjacency matrix represents our vertex
-
-What we have here is a multi-graph
-
-
-Terms:
-
-1. Multi Graph: Any graph which contain some parallel edges but doesn’t contain any self-loop is called multi graph. For example A Road Map.
-https://www.geeksforgeeks.org/graph-types-and-applications/
-
-2. The relaxation process in Dijkstra's algorithm refers to updating the cost of all vertices connected to a vertex v, if those costs would be improved by including the path via v.
-Relaxing an edge, (a concept you can find in other shortest-path algorithms as well) is trying to lower the cost of getting to a vertex by using another vertex.
-
-
-Complexity of our problem ( solving it means modification to the normal djikstra that we were taught on ):
-
-- How to deal with multi-graph is not taught in class ( but i think dijkstra using pq will still work fine )
-- Compressing this multi-graph to a normal graph : For every multi-edge, keep the one with lowest weight. 2: Apply Dijkstra algorithm. 
-    – But this does not work for us that easily since for the pitstop "edges", they have a relationship/they are linked. So, it is not clear-cut by looking at cost directly from one node to another. For pitstops, while it can be more expensive, it covers multiple destinations ( and as a result, might cover further distances too )
-
-*/
-
-// @TODO: Things that may make algorithm more complicated: Including round-trip constraints
-// Limitations: Time of flight not considered (may make it not usable), round-trip is not considered as well ( this means not for travellers that plan to return by a time/date )
-// Limitations: lack of data. But we did to the best of our abilities. We believe that inter-region flights etc / extend to larger number of airports -> this algorithm must be even more useful
-
 import java.util.*;
 
 /**
@@ -51,7 +17,16 @@ public class Dijkstra implements GraphAlgo {
      */
     public String executeAlgo(String source, String dest, Map<String,Integer> cityToIndex, Map<Integer, List<String>> flightIDToListOfStops, FlightInfoList graph[][]) {
 
-        // @TODO: check whether source is a valid airport string
+        /** Check if either source or dest is not supported in the data */
+        if (!cityToIndex.containsKey(source) || !cityToIndex.containsKey(dest))  {
+            return String.format("Flight from %s to %s is not supported", source, dest);
+        }
+
+        /** get the source city's idx representation in the adjacency matrix (graph) */
+        int sourceCityIdx = cityToIndex.get(source);
+        /** get the destination city's idx representation in the adjacency matrix (graph) */
+        int destCityIdx = cityToIndex.get(dest);
+        
 
         /**
          * flightTakenToReachCity is our probe hashmap which tracks the incoming flight chosen by dijkstra to reach a particular city
@@ -73,11 +48,6 @@ public class Dijkstra implements GraphAlgo {
 
         /** get the total number of unique cities we have in our dataset */
         int numberOfCitiesSupported = cityToIndex.size();
-        
-        /** get the source city's idx representation in the adjacency matrix (graph) */
-        int sourceCityIdx = cityToIndex.get(source);
-        /** get the destination city's idx representation in the adjacency matrix (graph) */
-        int destCityIdx = cityToIndex.get(dest);
 
         /**
          * minCostFromSrcToCity is an important implementation used by dijkstra to keep track of the cost computed to reach a city X from source city. 
@@ -110,7 +80,13 @@ public class Dijkstra implements GraphAlgo {
             int cityIndex = cityToIndex.get(cheapestCityToReach); 
             FlightInfoList outgoingFlights[] = graph[cityIndex];
 
+            boolean isFlightCostToCurrentCityTheCheapest = minCostFromSrcToCity[cityIndex] >= flightCostToCurrentCity;
+            if (!isFlightCostToCurrentCityTheCheapest) {
+                continue;
+            }
+
             /** get the previous flight taken to reach this cheapest city  */ 
+            
             FlightInfo previousFlightInfo = flightTakenToReachCity.get(cheapestCityToReach);
             
             for (int towardsCityIdx = 0; towardsCityIdx < outgoingFlights.length; towardsCityIdx++) {
@@ -121,7 +97,7 @@ public class Dijkstra implements GraphAlgo {
 
                 /** the list will store all the possible flights from cheapest city to another city such as pitstop flights/ direct flights */
                 ArrayList<FlightInfo> flightsFromCheapestCityTowardsAnotherCity = outgoingFlights[towardsCityIdx].getFlightInfoList();
-
+                
                 for (int j=0; j < flightsFromCheapestCityTowardsAnotherCity.size(); j++) {
                     FlightInfo fi = flightsFromCheapestCityTowardsAnotherCity.get(j);
 
@@ -162,7 +138,6 @@ public class Dijkstra implements GraphAlgo {
 
         /** Below code concerns processing the output of dijkstra to return user instructions for how to buy their air tickets */
 
-        // count the number of unique flight ids and their freq in the optimal path
         Stack<FlightTaken> flightsTakenToReachDestination = new Stack<>();
         FlightInfo incomingFlight = flightTakenToReachCity.get(dest);
         if (incomingFlight == null) {
@@ -170,19 +145,19 @@ public class Dijkstra implements GraphAlgo {
             return String.format("Flight from %s to %s is not supported", source, dest);
         }
 
-        // trace city path backwards from destination city
         String incomingFlightOriginCity = "";
 
+        /**  count the number of unique flight ids and their freq in the optimal path.
+         * This aids in tracing which stops to stop in for pitstop flights later
+         */
         while (incomingFlight != null) {
 
             incomingFlightOriginCity = incomingFlight.getCurrCity();
 
-            // check if incomingFlight is a non-first leg pitstop flight. if it is, path = from first city of pitstop flight to this incoming flight
-            // this means i need to include source city in the flightIDToListOfStops as well
+            /**  check if incomingFlight is a non-first leg pitstop flight. if it is, path = from first city of pitstop flight to this incoming flight */
             if (incomingFlight.getIsOrigin() == false) {
                 
                 List<String> pitstopsOnFlight = flightIDToListOfStops.get(incomingFlight.getId());
-                // search the list, for the incomingFlightNextCCity
                 String nextCity = incomingFlight.getNextCity();
                 int idxOfCity = pitstopsOnFlight.indexOf(nextCity);
 
@@ -192,9 +167,6 @@ public class Dijkstra implements GraphAlgo {
                 flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), 1));
             }
             
-            
-            // System.out.println("flight info:");
-            // System.out.println(incomingFlight);
             incomingFlight = flightTakenToReachCity.get(incomingFlightOriginCity);
         }
 
@@ -214,16 +186,13 @@ public class Dijkstra implements GraphAlgo {
         StringBuilder optimalPathSB = new StringBuilder(String.format("Starting airport: %s.\n", source));
         int step = 1;
 
-        // use the stack to get the list of stops
+        /* use the stack to trace the optimal path backwards  **/
         while (!flightsTakenToReachDestination.isEmpty()) {
-            // map flightID to list of stops that exist in the flightID
-            // @TODO give better naming
-            FlightTaken fo = flightsTakenToReachDestination.pop();
-            // List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(fo.getFlightID());
-
-            List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(fo.getFlightID());
+            
+            FlightTaken ft = flightsTakenToReachDestination.pop();
+            List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(ft.getFlightID());
             int numberOfCitiesReachableFromFlightSource = citiesInvolvedInFlight.size() - 1;
-            int numberOfCitiesTravelledFromFlightSource = fo.getCount();
+            int numberOfCitiesTravelledFromFlightSource = ft.getCount();
 
             if (numberOfCitiesReachableFromFlightSource == 1) {
                 // direct flight

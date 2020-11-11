@@ -1,5 +1,9 @@
 import java.util.*;
 
+/**
+ * Experimentation but not used for our final analysis!
+ * Instead our final algo to use is BFS and Dijkstra
+ */
 public class DFS implements GraphAlgo{
 
     public String executeAlgo(String source, String dest, Map<String,Integer> cityToIndex, Map<Integer, List<String>> flightIDToListOfStops, FlightInfoList[][] adjList){

@@ -13,12 +13,17 @@ public class BFSFirstPath implements GraphAlgo {
      * Returns a string representation of the instructions we give to our user on what are the flight paths to take. 
      * This is inclusive of direct flights, pitstop flights as well as taking skipped flights
      * 
-     * This function will not only contains dijkstra logic but also logic to create instructions for user on how to interpret the shortest path
+     * This function will not only contain BFS logic but also logic to create instructions for user on how to interpret the shortest path
      */
     public String executeAlgo(String source, String dest, Map<String,Integer> cityToIndex, Map<Integer, List<String>> flightIDToListOfStops, FlightInfoList graph[][]) {
 
+        /** Check if either source or dest is not supported in the data */
+        if (!cityToIndex.containsKey(source) || !cityToIndex.containsKey(dest))  {
+            return String.format("Flight from %s to %s is not supported", source, dest);
+        }
+
         /**
-         * flightTakenToReachCity is our probe hashmap which tracks the incoming flight chosen by dijkstra to reach a particular city
+         * flightTakenToReachCity is our probe hashmap which tracks the incoming flight chosen by BFS to reach a particular city
          * This implementation will be useful for backtracking the shortest path computed to output the cities within the path for users to see
          * The key value acts like the vertex
          * The flightinfo acts like the edge
@@ -36,18 +41,19 @@ public class BFSFirstPath implements GraphAlgo {
         
         /**
          * minCostFromSrcToCity is an important implementation used by BFS to keep track of the cost computed to reach a city X from source city. 
-         * by knowing the computed cost, when dijkstra can know if it has calculated an even cheaper cost path to reach city X, and as a result overwrite the cost in this array
+         * by knowing the computed cost, BFS can know if it has calculated an even cheaper cost path to reach city X, and as a result overwrite the cost in this array
          */
         int[] minCostFromSrcToCity = new int[numberOfCitiesSupported];
-        /** Fill up the cost to reach each city from src to be infinite. They will be updated by the dijkstra later */
+        /** Fill up the cost to reach each city from src to be infinite. They will be updated by the BFS later */
         Arrays.fill(minCostFromSrcToCity, Integer.MAX_VALUE);
 
         /** Cost for source to reach itself = 0 */
         minCostFromSrcToCity[sourceCityIdx] = 0;
 
         /**
-         * calculatedTravels helps dijkstra to decide its next step of selecting which flight path to compute the cost
-         * The priority queue will be useful until dijkstra finds the destination city. The TravelCost from the pq will then be the final "cheapest" cost
+         * calculatedTravels helps BFS to decide its next step of selecting which flight path to compute the cost
+         * The queue will be useful until BFS finds the destination city. 
+         * The TravelCost from the queue will then be the final "cheapest" cost which will be recorded in minCostFromSrcCity[index of final destination]
          */
         Queue<TravelCost> calculatedTravels = new LinkedList<>();
         calculatedTravels.add(new TravelCost(source, 0));
@@ -66,7 +72,7 @@ public class BFSFirstPath implements GraphAlgo {
 
             int cityIndex = cityToIndex.get(currentCityToReach);
 
-            /** Compare travel cost with the min cost calculated to reach current city, this may happen due to a more recently computed travel cost going to the same destination was computed and enqueued into the priority queue  */
+            /** Compare travel cost with the min cost calculated to reach current city, this may happen due to a more recently computed travel cost going to the same destination was computed and enqueued into the queue.  */
             if (minCostFromSrcToCity[cityIndex] < flightCostToCurrentCity) {
                 continue;
             }
@@ -115,7 +121,6 @@ public class BFSFirstPath implements GraphAlgo {
                         
                         calculatedTravels.add(new TravelCost(nextFlightDestination, costToNextCity));
                         
-                        // @TODO: problem with this is, the previous flight info is for this travel cost, not for other travel cost going towards same destination
                         // when dequeue compare travel cost with minCostFromSrcToCity[nextCityIdx], if is higher, then ignore
                         flightTakenToReachCity.put(nextFlightDestination, fi);
 
@@ -131,9 +136,8 @@ public class BFSFirstPath implements GraphAlgo {
 
         }
 
-        /** Below code concerns processing the output of dijkstra to return user instructions for how to buy their air tickets */
+        /** Below code concerns processing the output of bfs to return user instructions for how to buy their air tickets */
 
-        // count the number of unique flight ids and their freq in the optimal path
         Stack<FlightTaken> flightsTakenToReachDestination = new Stack<>();
         FlightInfo incomingFlight = flightTakenToReachCity.get(dest);
         if (incomingFlight == null) {
@@ -141,19 +145,19 @@ public class BFSFirstPath implements GraphAlgo {
             return String.format("Flight from %s to %s is not supported", source, dest);
         }
 
-        // trace city path backwards from destination city
         String incomingFlightOriginCity = "";
 
+        /** Count the number of unique flight ids and their freq in the optimal path.
+         * This aids in tracing which stops to stop in for pitstop flights later
+         */
         while (incomingFlight != null) {
 
             incomingFlightOriginCity = incomingFlight.getCurrCity();
 
-            // check if incomingFlight is a non-first leg pitstop flight. if it is, path = from first city of pitstop flight to this incoming flight
-            // this means i need to include source city in the flightIDToListOfStops as well
+            /**  check if incomingFlight is a non-first leg pitstop flight. if it is, path = from first city of pitstop flight to this incoming flight */
             if (incomingFlight.getIsOrigin() == false) {
                 
                 List<String> pitstopsOnFlight = flightIDToListOfStops.get(incomingFlight.getId());
-                // search the list, for the incomingFlightNextCCity
                 String nextCity = incomingFlight.getNextCity();
                 int idxOfCity = pitstopsOnFlight.indexOf(nextCity);
 
@@ -163,9 +167,6 @@ public class BFSFirstPath implements GraphAlgo {
                 flightsTakenToReachDestination.push(new FlightTaken(incomingFlight.getId(), 1));
             }
             
-            
-            // System.out.println("flight info:");
-            // System.out.println(incomingFlight);
             incomingFlight = flightTakenToReachCity.get(incomingFlightOriginCity);
         }
 
@@ -185,16 +186,15 @@ public class BFSFirstPath implements GraphAlgo {
         StringBuilder optimalPathSB = new StringBuilder(String.format("Starting airport: %s.\n", source));
         int step = 1;
 
-        // use the stack to get the list of stops
+        /* use the stack to trace the optimal path backwards  **/
         while (!flightsTakenToReachDestination.isEmpty()) {
+            
+            FlightTaken ft = flightsTakenToReachDestination.pop();
+            
             // map flightID to list of stops that exist in the flightID
-            // @TODO give better naming
-            FlightTaken fo = flightsTakenToReachDestination.pop();
-            // List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(fo.getFlightID());
-
-            List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(fo.getFlightID());
+            List<String> citiesInvolvedInFlight = flightIDToListOfStops.get(ft.getFlightID());
             int numberOfCitiesReachableFromFlightSource = citiesInvolvedInFlight.size() - 1;
-            int numberOfCitiesTravelledFromFlightSource = fo.getCount();
+            int numberOfCitiesTravelledFromFlightSource = ft.getCount();
 
             if (numberOfCitiesReachableFromFlightSource == 1) {
                 // direct flight
