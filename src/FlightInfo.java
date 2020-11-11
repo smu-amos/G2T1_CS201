@@ -4,7 +4,6 @@ public class FlightInfo {
 
     //store info whether current stop is source. If not, means cannot fly from here
     private boolean isOrigin;
-    private boolean traversed = false;
     private String nextCity;
     private String currCity;
     private int id;
@@ -24,16 +23,8 @@ public class FlightInfo {
     
     @Override
     public String toString() {
-        return "( price:" + price + ", isOrigin:" + isOrigin + ", isTraversed:" + traversed + ", " +  "current city:" + currCity + ", next city:" + nextCity + ", id=" + id + ")";
+        return "( price:" + price + ", isOrigin:" + isOrigin + ", " +  "current city:" + currCity + ", next city:" + nextCity + ", id=" + id + ")";
         // return ("test");
-    }
-
-    public void setTraversed() {
-        traversed = true;
-    }
-
-    public boolean getTraversed() {
-        return traversed;
     }
 
     public void setIsOrigin(boolean value) {
