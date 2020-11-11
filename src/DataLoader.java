@@ -11,9 +11,10 @@ public class DataLoader {
     public static FlightInfoList adjacencyMatrix[][];
 
     public static void main (String[] args) {        
-        File file = new File("/Users/amoslgl96/Documents/SMU-Y4S1/CS201-DATASTRUCTURE/Project/CS201_PROJECT/data/overall_data.csv");
+        File file = new File("");
         BufferedReader br = null;
         BufferedReader br2 = null;
+        Scanner scanInput = new Scanner(System.in);
         String line = "";
         Map<String, Integer> cityToIndex = new HashMap<>();
         Map<Integer, List<String>> flightIDToListOfStops = new HashMap<>();
@@ -150,74 +151,48 @@ public class DataLoader {
                 }
             }
         }
-
-        //Test Print
-        // FlightInfoList adjacencyMatrix[][] = matrixGraph.getMatrix();
-        // for (int i = 0; i < 3; i++) {
-        //     for (int j = 0; j < 3; j++) {
-        //         System.out.println(adjacencyMatrix[i][j]);
-        //     }
-        // }
-
-        String result;
-
-        // //Run greedy algo
-        // System.out.println("Greedy:");
-        // Greedy1 greedy1 = new Greedy1();
-        // result = greedy1.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        // System.out.println(result);
-
-        // System.out.println();
-
-        // //Run greedy backtrack algo
-        // System.out.println("Greedy with Backtrack:");
-        // Greedy1Backtrack greedy1Backtrack = new Greedy1Backtrack();
-        // result = greedy1Backtrack.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        // System.out.println(result);
-
-        // System.out.println();
-
-        System.out.println("Dijkstra:");
-        long startTime = System.currentTimeMillis();
-        Dijkstra dijkstra = new Dijkstra();
-        result = dijkstra.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        long estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(result);
-
-        System.out.println(startTime);
-        System.out.println(estimatedTime);
-        System.out.println();        
-
-        //Run BFSAllPaths algo
-        System.out.println("BFSAllPaths:");
-        startTime = System.currentTimeMillis();
-        BFSAllPaths bfsAllPaths = new BFSAllPaths();
-        result = bfsAllPaths.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(result);
-
-        System.out.println("BFSAllPaths:");
         
-        System.out.println(startTime);
-        System.out.println(estimatedTime);
+        String repeat;
 
-        System.out.println();
+        do {
+            
+            System.out.println("Where would you like to fly from?: ");
+            String from = scanInput.nextLine().toUpperCase();
+            System.out.println("Where would you like to fly to?: ");
+            String to = scanInput.nextLine().toUpperCase();
 
-        //Run BFSFirstPath algo
-        System.out.println("BFSFirstPath start:");
+            String result;
 
-        startTime = System.currentTimeMillis();
-        BFSFirstPath bfsFirstPath = new BFSFirstPath();
-        result = bfsFirstPath.executeAlgo("AMS", "PVG", cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
-        estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(result);
+            // @NOTE:
+            /**
+             * To serve actual users, we will run one algorithm only which will be BFSAllPaths for our current dataset size because it is the fastest and also most accurate
+             * But for project submission, we will just run all 3 algorithms
+             */
+            
+            //Run Dijkstra algo
+            System.out.println("Dijkstra:");
+            long startTime = System.currentTimeMillis();
+            Dijkstra dijkstra = new Dijkstra();
+            result = dijkstra.executeAlgo(from, to, cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+            System.out.println(result);
 
-        System.out.println("BFSFirstPath end:");
-        
-        System.out.println(startTime);
-        System.out.println(estimatedTime);
+            //Run BFSAllPaths algo
+            System.out.println("BFSAllPaths:");
+            BFSAllPaths bfsAllPaths = new BFSAllPaths();
+            result = bfsAllPaths.executeAlgo(from, to, cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+            System.out.println(result);
 
+            //Run BFSFirstPath algo
+            System.out.println("BFSFirstPath start:");
+            startTime = System.currentTimeMillis();
+            BFSFirstPath bfsFirstPath = new BFSFirstPath();
+            result = bfsFirstPath.executeAlgo(from, to, cityToIndex, flightIDToListOfStops, matrixGraph.getMatrix());
+            System.out.println(result);
 
-    
+            System.out.println("Would you like to compute another travel path again? (Y/N): ");
+            repeat = scanInput.nextLine();
+        }
+        while (repeat.toUpperCase().trim().equals("Y"));
+
     }
 }
